@@ -1,1 +1,11 @@
 GET http://localhost:3001/api/notes/60426399f3c3f2a48be57cfb
+
+###
+
+// Non-existent note
+GET http://localhost:3001/api/notes/60426399f3c3f2a48be57cfc
+
+###
+
+// Malformatted id
+GET http://localhost:3001/api/notes/malformattedID
