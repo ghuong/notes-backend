@@ -5,3 +5,14 @@ Content-Type: application/json
   "content": "Completely new note",
   "important": false
 }
+
+###
+
+// Fail mongoose validation rules
+POST http://localhost:3001/api/notes
+Content-Type: application/json
+
+{
+  "content": "lol",
+  "important": false
+}
