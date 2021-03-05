@@ -24,12 +24,14 @@ app.use(cors());
 
 // API Routes
 
+// get all notes
 app.get("/api/notes", (request, response) => {
   Note.find({}).then((notes) => {
     response.json(notes);
   });
 });
 
+// get note
 app.get("/api/notes/:id", (request, response, next) => {
   Note.findById(request.params.id)
     .then((note) => {
@@ -44,6 +46,7 @@ app.get("/api/notes/:id", (request, response, next) => {
     });
 });
 
+// create note
 app.post("/api/notes", (request, response) => {
   const body = request.body;
 
@@ -64,11 +67,28 @@ app.post("/api/notes", (request, response) => {
   });
 });
 
-app.delete("/api/notes/:id", (request, response) => {
-  const id = Number(request.params.id);
-  notes = notes.filter((note) => note.id !== id);
+// update importance of note
+app.put("/api/notes/:id", (request, response, next) => {
+  const body = request.body;
+  const note = {
+    content: body.content,
+    important: body.important,
+  };
 
-  response.status(204).end();
+  Note.findByIdAndUpdate(request.params.id, note, { new: true })
+    .then((updatedNote) => {
+      response.json(updatedNote);
+    })
+    .catch((error) => next(error));
+});
+
+// delete note
+app.delete("/api/notes/:id", (request, response, next) => {
+  Note.findByIdAndRemove(request.params.id)
+    .then((result) => {
+      response.status(204).end();
+    })
+    .catch((error) => next(error));
 });
 
 // unknown endpoint middleware
