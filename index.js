@@ -4,6 +4,7 @@ const app = express();
 
 // activate express' json-parser middleware:
 app.use(express.json());
+app.use(express.static("build"));
 
 const requestLogger = (request, response, next) => {
   console.log("Method:", request.method);
