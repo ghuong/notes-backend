@@ -5,8 +5,8 @@ const app = express();
 const Note = require("./models/note");
 
 // activate express' json-parser middleware:
-app.use(express.json());
 app.use(express.static("build"));
+app.use(express.json());
 
 // custom request logger middleware
 const requestLogger = (request, response, next) => {
@@ -30,7 +30,7 @@ app.get("/api/notes", (request, response) => {
   });
 });
 
-app.get("/api/notes/:id", (request, response) => {
+app.get("/api/notes/:id", (request, response, next) => {
   Note.findById(request.params.id)
     .then((note) => {
       if (note) {
@@ -40,8 +40,7 @@ app.get("/api/notes/:id", (request, response) => {
       }
     })
     .catch((error) => {
-      console.log(error);
-      response.status(400).send({ error: "Malformatted id" });
+      next(error);
     });
 });
 
@@ -72,6 +71,7 @@ app.delete("/api/notes/:id", (request, response) => {
   response.status(204).end();
 });
 
+// unknown endpoint middleware
 const unknownEndpoint = (request, response) => {
   response.status(404).send({
     error: "unknown endpoint",
@@ -79,6 +79,19 @@ const unknownEndpoint = (request, response) => {
 };
 
 app.use(unknownEndpoint);
+
+// Error handler middleware (must be the last middleware)
+const errorHandler = (error, request, response, next) => {
+  console.log(error.message);
+
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "Malformatted id" });
+  }
+
+  next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
