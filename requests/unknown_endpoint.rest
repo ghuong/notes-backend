@@ -1,1 +1,1 @@
-GET "http://localhost:3001/unknown/endpoint"
+GET http://localhost:3001/unknown/endpoint
