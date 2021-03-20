@@ -25,7 +25,7 @@ notesRouter.get("/:id", (request, response, next) => {
 });
 
 // create note
-notesRouter.post("/", (request, response, next) => {
+notesRouter.post("/", async (request, response, next) => {
   const body = request.body;
 
   if (body.content === "undefined") {
@@ -40,12 +40,12 @@ notesRouter.post("/", (request, response, next) => {
     date: new Date(),
   });
 
-  note
-    .save()
-    .then((savedNote) => {
-      response.json(savedNote);
-    })
-    .catch((error) => next(error));
+  try {
+    const savedNote = await note.save();
+    response.json(savedNote);
+  } catch (exception) {
+    next(exception);
+  }
 });
 
 // update importance of note
