@@ -4,10 +4,9 @@ const Note = require("../models/note");
 // API Routes
 
 // get all notes
-notesRouter.get("/", (request, response) => {
-  Note.find({}).then((notes) => {
-    response.json(notes);
-  });
+notesRouter.get("/", async (request, response) => {
+  const notes = await Note.find({});
+  response.json(notes);
 });
 
 // get note
