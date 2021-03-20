@@ -9,7 +9,7 @@ if (process.argv.length < 3) {
 
 const password = process.argv[2];
 
-const DATABASE_NAME = "note-app";
+const DATABASE_NAME = "note-app-test";
 const url = `mongodb+srv://fullstack:${password}@cluster0.gyglp.mongodb.net/${DATABASE_NAME}?retryWrites=true&w=majority`;
 
 mongoose.connect(url, {
@@ -27,7 +27,7 @@ const noteSchema = new mongoose.Schema({
 
 const Note = mongoose.model("Note", noteSchema);
 
-/**
+
 // const note = new Note({
 //   content: "HTML is easy",
 //   date: new Date(),
@@ -41,7 +41,7 @@ const Note = mongoose.model("Note", noteSchema);
 // });
 
 // const note = new Note({
-t//   content: "GET and POST are the most important methods of HTTP protocol",
+//   content: "GET and POST are the most important methods of HTTP protocol",
 //   date: "2019-05-30T19:20:14.298Z",
 //   important: true,
 // });
@@ -50,7 +50,7 @@ note.save().then((result) => {
   console.log("note saved!");
   mongoose.connection.close();
 });
-*/
+
 
 Note.find({ important: true }).then((result) => {
   result.forEach((note) => {
