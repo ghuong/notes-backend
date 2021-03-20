@@ -7,10 +7,11 @@ const Note = require("../models/note");
 
 beforeEach(async () => {
   await Note.deleteMany({});
-  let noteObject = new Note(helper.initialNotes[0]);
-  await noteObject.save();
-  noteObject = new Note(helper.initialNotes[1]);
-  await noteObject.save();
+
+  const noteObjects = helper.initialNotes
+    .map(note => new Note(note));
+  const promiseArray = noteObjects.map(note => note.save());
+  await Promise.all(promiseArray);
 });
 
 test("notes are returned as json", async () => {
@@ -88,7 +89,7 @@ test("a note can be deleted", async () => {
 
   expect(notesAtEnd).toHaveLength(helper.initialNotes.length - 1);
 
-  const contents = notesAtEnd.map(r => r.content);
+  const contents = notesAtEnd.map((r) => r.content);
 
   expect(contents).not.toContain(noteToDelete.content);
 });
