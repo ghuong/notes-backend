@@ -4,6 +4,18 @@ const helper = require("./test_helper");
 const app = require("../app");
 const api = supertest(app);
 const Note = require("../models/note");
+const User = require("../models/user");
+
+let jwt;
+
+beforeAll(async () => {
+  await helper.initUsersDb();
+  const response = await api.post("/api/login").send({
+    username: "root",
+    password: "sekret",
+  });
+  jwt = response.body.token;
+});
 
 beforeEach(async () => {
   await Note.deleteMany({});
@@ -53,17 +65,13 @@ describe("viewing a specific note", () => {
 
     console.log(validNonexistingId);
 
-    await api
-      .get(`/api/note/${validNonexistingId}`)
-      .expect(404);
+    await api.get(`/api/note/${validNonexistingId}`).expect(404);
   });
 
   test("fails with status code 400 if id is invalid", async () => {
     const invalidId = "5a3d5da59070081a82a3445";
 
-    await api
-      .get(`/api/notes/${invalidId}`)
-      .expect(400);
+    await api.get(`/api/notes/${invalidId}`).expect(400);
   });
 });
 
@@ -76,6 +84,7 @@ describe("addition of a new note", () => {
 
     await api
       .post("/api/notes")
+      .set("Authorization", `bearer ${jwt}`)
       .send(newNote)
       .expect(200)
       .expect("Content-Type", /application\/json/);
@@ -92,10 +101,27 @@ describe("addition of a new note", () => {
       important: true,
     };
 
-    await api.post("/api/notes").send(newNote).expect(400);
+    await api
+      .post("/api/notes")
+      .set("Authorization", `bearer ${jwt}`)
+      .send(newNote)
+      .expect(400);
 
     const notesAtEnd = await helper.notesInDb();
     expect(notesAtEnd).toHaveLength(helper.initialNotes.length);
+  });
+
+  test("fails with status code 401 if token invalid", async () => {
+    const newNote = {
+      content: "async/await simplifies making async calls",
+      important: true,
+    };
+
+    await api
+      .post("/api/notes")
+      .set("Authorization", `bearer ${jwt.substr(1)}g`)
+      .send(newNote)
+      .expect(401);
   });
 });
 
@@ -114,7 +140,6 @@ describe("deletion of a note", () => {
 
     expect(contents).not.toContain(noteToDelete.content);
   });
-
 });
 
 afterAll(() => {
